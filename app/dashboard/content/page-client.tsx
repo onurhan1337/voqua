@@ -3,21 +3,19 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { VideoStatsCards } from "@/components/content/video-stats-cards";
-import { VideoList } from "@/components/content/video-list";
-import { EmptyVideosState } from "@/components/content/empty-videos-state";
-import { getVideos, getVideoStats } from "@/lib/api/videos";
+import { VideoStatsCardsClient } from "@/components/content/video-stats-cards-client";
+import { VideoListClient } from "@/components/content/video-list-client";
 
-interface PageProps {
+interface PageClientProps {
   searchParams: Promise<{
     video_id?: string;
   }>;
 }
 
-export default async function ContentPage({ searchParams }: PageProps) {
+export default async function ContentPageClient({
+  searchParams,
+}: PageClientProps) {
   const params = await searchParams;
-
-  const [videos, stats] = await Promise.all([getVideos(), getVideoStats()]);
 
   return (
     <div className="flex-1 overflow-auto bg-gray-50">
@@ -51,13 +49,9 @@ export default async function ContentPage({ searchParams }: PageProps) {
               <Link href="/dashboard/creators">Create New Video</Link>
             </Button>
           </div>
-          <VideoStatsCards stats={stats} />
+          <VideoStatsCardsClient />
         </div>
-        {videos && videos.length > 0 ? (
-          <VideoList videos={videos} highlightedVideoId={params.video_id} />
-        ) : (
-          <EmptyVideosState />
-        )}
+        <VideoListClient highlightedVideoId={params.video_id} />
       </div>
     </div>
   );
