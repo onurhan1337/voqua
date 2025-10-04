@@ -1,8 +1,54 @@
 import { createClient } from "@/lib/supabase/server";
 import { createRequestLogger } from "@/lib/logger";
 import { NextResponse } from "next/server";
+import {
+  SIGNED_URL_EXPIRY,
+  USER_VIDEOS_BUCKET,
+  VIDEO_CONTENT_TYPE,
+} from "@/lib/video/constants";
+import { VideoErrorResponse } from "@/lib/video/types";
 
-const SIGNED_URL_EXPIRY = 60 * 60;
+async function getVideoRecord(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  videoId: string,
+  userId: string
+) {
+  const { data: video } = await supabase
+    .from("generated_videos")
+    .select("*")
+    .eq("id", videoId)
+    .eq("user_id", userId)
+    .single();
+
+  return video;
+}
+
+async function createVideoSignedUrl(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  videoId: string
+) {
+  const videoPath = `${userId}/${videoId}/video.mp4`;
+
+  const { data: signedUrl, error } = await supabase.storage
+    .from(USER_VIDEOS_BUCKET)
+    .createSignedUrl(videoPath, SIGNED_URL_EXPIRY);
+
+  if (error || !signedUrl) {
+    throw new Error(`Failed to create signed URL: ${error?.message}`);
+  }
+
+  return signedUrl.signedUrl;
+}
+
+async function streamVideo(signedUrl: string) {
+  const response = await fetch(signedUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch video: ${response.statusText}`);
+  }
+
+  return response.arrayBuffer();
+}
 
 export async function GET(
   request: Request,
@@ -27,7 +73,10 @@ export async function GET(
 
     if (!user) {
       logger.warn("Unauthorized video fetch attempt");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" } as VideoErrorResponse,
+        { status: 401 }
+      );
     }
 
     logger = createRequestLogger(user.id, requestId).child({
@@ -35,40 +84,25 @@ export async function GET(
       isDownload,
     });
 
-    const { data: video } = await supabase
-      .from("generated_videos")
-      .select("*")
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .single();
+    const video = await getVideoRecord(supabase, id, user.id);
 
     if (!video) {
       logger.warn("Video not found");
-      return NextResponse.json({ error: "Video not found" }, { status: 404 });
-    }
-
-    const videoPath = `${user.id}/${video.id}/video.mp4`;
-
-    const { data: signedUrl, error } = await supabase.storage
-      .from("user-videos")
-      .createSignedUrl(videoPath, SIGNED_URL_EXPIRY);
-
-    if (error || !signedUrl) {
-      logger.error({ error }, "Failed to create signed URL");
       return NextResponse.json(
-        { error: "Failed to get video URL" },
-        { status: 500 }
+        { error: "Video not found" } as VideoErrorResponse,
+        { status: 404 }
       );
     }
 
+    const signedUrl = await createVideoSignedUrl(supabase, user.id, video.id);
+
     if (isDownload) {
       logger.info("Redirecting to download");
-      return NextResponse.redirect(signedUrl.signedUrl);
+      return NextResponse.redirect(signedUrl);
     }
 
     logger.info("Fetching and streaming video");
-    const response = await fetch(signedUrl.signedUrl);
-    const videoBuffer = await response.arrayBuffer();
+    const videoBuffer = await streamVideo(signedUrl);
 
     logger.info(
       { sizeBytes: videoBuffer.byteLength },
@@ -77,7 +111,7 @@ export async function GET(
 
     return new NextResponse(videoBuffer, {
       headers: {
-        "Content-Type": "video/mp4",
+        "Content-Type": VIDEO_CONTENT_TYPE,
         "Accept-Ranges": "bytes",
         "Cache-Control": "public, max-age=3600",
       },
@@ -85,7 +119,7 @@ export async function GET(
   } catch (error) {
     logger.error({ error }, "Failed to fetch video");
     return NextResponse.json(
-      { error: "Failed to fetch video" },
+      { error: "Failed to fetch video" } as VideoErrorResponse,
       { status: 500 }
     );
   }
