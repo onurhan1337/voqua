@@ -1,55 +1,30 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Settings,
-  AudioLines,
-} from "lucide-react";
+import { Settings, AudioLines } from "lucide-react";
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip";
-import { cn } from "@/lib/utils";
+import { SidebarNavigation } from "./sidebar-navigation";
+import { createClient } from "@/lib/supabase/server";
 
-const items = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Creators",
-    url: "/dashboard/creators",
-    icon: Users,
-  },
-  {
-    title: "Content",
-    url: "/dashboard/content",
-    icon: AudioLines,
-  },
-  {
-    title: "Campaigns",
-    url: "/dashboard/campaigns",
-    icon: FileText,
-  },
-];
+export async function AppSidebar() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export function AppSidebar() {
-  const pathname = usePathname();
+  const { data: notifications } = await supabase
+    .from("notifications")
+    .select("read")
+    .eq("user_id", user?.id || "");
+
+  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
 
   return (
     <Sidebar collapsible="icon">
@@ -72,37 +47,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <Tooltip key={item.title}>
-                  <TooltipTrigger asChild>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={pathname === item.url}
-                        className={cn(
-                          "border border-dashed rounded-md",
-                          pathname === item.url
-                            ? "border-neutral-500"
-                            : "border-transparent"
-                        )}
-                      >
-                        <Link href={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">{item.title}</TooltipContent>
-                </Tooltip>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <SidebarNavigation userId={user?.id || ""} unreadCount={unreadCount} />
       </SidebarContent>
 
       <SidebarFooter>

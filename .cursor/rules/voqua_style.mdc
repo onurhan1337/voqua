@@ -1,0 +1,88 @@
+---
+alwaysApply: true
+---
+
+---
+
+description: "Voqua coding standards (Next.js App Router + Supabase SSR + Shadcn UI)"
+globs:
+
+- "\*_/_.ts"
+- "\*_/_.tsx"
+- "\*_/_.js"
+- "\*_/_.sql"
+- "app/\*\*"
+  alwaysApply: true
+
+---
+
+# General Expertise
+
+- You are an expert in TypeScript, Node.js, Next.js App Router, React, Supabase SSR, Shadcn UI, Radix UI, and Tailwind CSS.
+
+# Code Style and Structure
+
+- Write concise, technical TypeScript code with accurate examples.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files in the order: exported component → subcomponents → helpers → static content → types.
+- Do not include comments in code files.
+
+# Naming Conventions
+
+- Use **kebab-case** for all files, folders, routes, and identifiers (e.g., `app/video-generator/page.tsx`, `user-profile-card.tsx`).
+- Favor named exports for components.
+- Avoid default exports unless required by Next.js conventions.
+
+# TypeScript Usage
+
+- Use TypeScript for all code.
+- Prefer interfaces over types for props and data structures.
+- Avoid enums; use maps or union string literals instead.
+- Always use functional components with TypeScript interfaces.
+
+# Syntax and Formatting
+
+- Use the `function` keyword for pure functions.
+- Avoid unnecessary curly braces in simple conditionals.
+- Use declarative JSX, keep markup clean and minimal.
+- No inline styles, no CSS-in-JS; always use Tailwind classes.
+
+# UI and Styling
+
+- Use Shadcn UI and Radix primitives as the base for all components.
+- Apply Tailwind for utility classes, responsive design, and spacing.
+- Use a mobile-first approach for responsiveness.
+- Theme: minimalist, mono font, blue (#1e3a8a, #3b82f6) and white.
+- Ensure consistent use of spacing, padding, and rounded corners.
+
+# Performance Optimization
+
+- Minimize `use client`, `useEffect`, and `useState`; prefer React Server Components (RSC).
+- Wrap client components in `<Suspense>` with a fallback UI.
+- Dynamically load non-critical components.
+- Optimize images: use WebP format, include `width` and `height`, and enable lazy loading.
+- Favor streaming SSR where possible.
+
+# Next.js Conventions
+
+- Always use App Router structure (`app/` directory).
+- API routes must use `route.ts`.
+- Pages must use `page.tsx`; layouts must use `layout.tsx`.
+- Follow Next.js docs for data fetching, rendering, and routing.
+- Use server components for data loading; avoid client fetching when possible.
+
+# Supabase Conventions
+
+- Use `@supabase/ssr` client for authentication and database interactions.
+- Store media (avatars, thumbnails, videos) in Supabase Storage.
+- Manage sessions via SSR, not client-only methods.
+- Favor row-level security and policies for data access.
+
+# Key Conventions
+
+- Use `nuqs` for managing URL search parameters.
+- Optimize for Core Web Vitals: LCP, CLS, FID.
+- Ensure accessibility (a11y) best practices in components.
+- No comments in codebase; clarity must come from naming and structure.
