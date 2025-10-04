@@ -26,7 +26,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
       <nav className="border-b">
         <div className="max-w-6xl mx-auto flex justify-between items-center px-6 py-4">
           <div className="flex items-center gap-3">
@@ -39,7 +38,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <div className="animate-in fade-in duration-1000">
@@ -62,7 +60,6 @@ export default function Home() {
               UGC content.
             </p>
 
-            {/* Simple Elegant Process */}
             <div className="bg-gradient-to-r from-muted/20 to-muted/30 rounded-xl p-8 mb-12 max-w-2xl mx-auto border border-muted/50">
               <div className="flex items-center justify-center space-x-12">
                 <div className="text-center group">
@@ -131,7 +128,6 @@ export default function Home() {
               </Button>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto">
               <div className="text-center">
                 <div className="text-2xl font-bold">10K+</div>
@@ -152,7 +148,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-16 bg-muted/50">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -245,7 +240,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -291,7 +285,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Use Cases */}
       <section className="py-16 bg-muted/50">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -360,7 +353,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-4">
@@ -383,7 +375,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t py-12">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

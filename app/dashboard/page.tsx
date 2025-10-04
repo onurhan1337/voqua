@@ -35,13 +35,11 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false })
     .limit(3);
 
-  // Fetch total video count
   const { count: totalVideos } = await supabase
     .from("generated_videos")
     .select("*", { count: "exact", head: true })
     .eq("user_id", user?.id || "");
 
-  // Fetch avatar count
   const { count: avatarCount } = await supabase
     .from("avatar_previews")
     .select("*", { count: "exact", head: true });
@@ -49,7 +47,6 @@ export default async function DashboardPage() {
   return (
     <div className="flex-1 overflow-auto bg-background">
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Header */}
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">
             Welcome back, {firstName}
@@ -59,7 +56,6 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardContent className="p-6">
@@ -106,7 +102,6 @@ export default async function DashboardPage() {
           </Card>
         </div>
 
-        {/* Quick Actions */}
         <div className="grid gap-4 md:grid-cols-3">
           <div className="relative group">
             <Card className="hover:shadow-md transition-shadow cursor-pointer rounded-none border border-neutral-300 group-hover:border-muted-foreground/40 duration-300">
@@ -185,13 +180,11 @@ export default async function DashboardPage() {
                 </Link>
               </CardContent>
             </Card>
-            {/* Corner decorations that "close" the border */}
             <div className="absolute -top-1 -right-1 w-3 h-3 border-t border-r border-muted-foreground/50 group-hover:border-muted-foreground group-hover:w-4 group-hover:h-4 transition-all duration-300"></div>
             <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b border-l border-muted-foreground/50 group-hover:border-muted-foreground group-hover:w-4 group-hover:h-4 transition-all duration-300"></div>
           </div>
         </div>
 
-        {/* Recent Videos */}
         {recentVideos && recentVideos.length > 0 && (
           <Card>
             <CardHeader>
@@ -252,7 +245,6 @@ export default async function DashboardPage() {
           </Card>
         )}
 
-        {/* Empty State */}
         {(!recentVideos || recentVideos.length === 0) && (
           <Card className="text-center py-12">
             <CardContent>

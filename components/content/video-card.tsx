@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Play, Download, Calendar } from "lucide-react";
 import { useState, useRef } from "react";
+import { useDownload } from "@/hooks/use-download";
 
 interface Video {
   id: string;
@@ -16,21 +17,15 @@ interface Video {
   avatar: { name: string } | null;
 }
 
-interface VideoListProps extends React.HTMLAttributes<HTMLDivElement> {
-  videos: Video[];
-  highlightedVideoId?: string;
+interface VideoCardProps {
+  video: Video;
+  isNewVideo?: boolean;
 }
 
-function VideoCard({
-  video,
-  isNewVideo,
-}: {
-  video: Video;
-  isNewVideo: boolean;
-}) {
-  const [isDownloading, setIsDownloading] = useState(false);
+export function VideoCard({ video, isNewVideo = false }: VideoCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { isDownloading, downloadVideo } = useDownload();
 
   const avatarName = video.avatar?.name || "Unknown";
   const createdDate = new Date(video.created_at).toLocaleDateString("en-US", {
@@ -39,28 +34,8 @@ function VideoCard({
     day: "numeric",
   });
 
-  const handleDownload = async () => {
-    if (isDownloading) return;
-
-    setIsDownloading(true);
-    try {
-      const response = await fetch(`/api/video/${video.id}?download=true`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `video-${video.id}.mp4`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }
-    } catch (error) {
-      console.error("Download error:", error);
-    } finally {
-      setTimeout(() => setIsDownloading(false), 2000);
-    }
+  const handleDownload = () => {
+    downloadVideo(video.id);
   };
 
   const handleMouseEnter = () => {
@@ -179,22 +154,5 @@ function VideoCard({
         </div>
       </div>
     </Card>
-  );
-}
-
-export function VideoList({
-  videos,
-  highlightedVideoId,
-  ...props
-}: VideoListProps) {
-  return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" {...props}>
-      {videos.map((video) => {
-        const isNewVideo = highlightedVideoId === video.id;
-        return (
-          <VideoCard key={video.id} video={video} isNewVideo={isNewVideo} />
-        );
-      })}
-    </div>
   );
 }

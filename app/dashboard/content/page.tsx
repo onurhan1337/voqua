@@ -1,11 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, Eye, Clock, Download, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { VideoList } from "./page-client";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { VideoStatsCards } from "@/components/content/video-stats-cards";
+import { VideoList } from "@/components/content/video-list";
+import { EmptyVideosState } from "@/components/content/empty-videos-state";
+
+interface Video {
+  id: string;
+  script: string;
+  status: string;
+  video_url: string | null;
+  created_at: string;
+  avatar: { name: string } | null;
+}
 
 interface PageProps {
   searchParams: Promise<{
@@ -36,14 +46,25 @@ export default async function ContentPage({ searchParams }: PageProps) {
     console.error("Error loading videos:", error);
   }
 
-  // Calculate analytics data
-  const totalVideos = videos?.length || 0;
-  const completedVideos =
-    videos?.filter((video) => video.status === "completed").length || 0;
-  const processingVideos =
-    videos?.filter((video) => video.status === "processing").length || 0;
-  const totalDuration =
-    (videos?.filter((video) => video.status === "completed").length || 0) * 2.5; // Assuming 2.5 minutes per video
+  function calculateVideoStats(videos: Video[]) {
+    const totalVideos = videos.length;
+    const completedVideos = videos.filter(
+      (video) => video.status === "completed"
+    ).length;
+    const processingVideos = videos.filter(
+      (video) => video.status === "processing"
+    ).length;
+    const totalDuration = completedVideos * 2.5; // Assuming 2.5 minutes per video
+
+    return {
+      totalVideos,
+      completedVideos,
+      processingVideos,
+      totalDuration,
+    };
+  }
+
+  const stats = calculateVideoStats(videos || []);
 
   return (
     <div className="flex-1 overflow-auto bg-gray-50">
@@ -77,92 +98,12 @@ export default async function ContentPage({ searchParams }: PageProps) {
               <Link href="/dashboard/creators">Create New Video</Link>
             </Button>
           </div>
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-muted-foreground">
-                      Total Videos
-                    </p>
-                    <p className="text-2xl font-bold">{totalVideos}</p>
-                  </div>
-                  <div className="h-8 w-8 rounded-md bg-primary/10 border border-primary/20 shadow-inner flex items-center justify-center">
-                    <Play className="h-4 w-4 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-muted-foreground">
-                      Completed
-                    </p>
-                    <p className="text-2xl font-bold">{completedVideos}</p>
-                  </div>
-                  <div className="h-8 w-8 rounded-md bg-green-100 border border-green-900/20 shadow-inner flex items-center justify-center">
-                    <Eye className="h-4 w-4 text-green-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-muted-foreground">
-                      Processing
-                    </p>
-                    <p className="text-2xl font-bold">{processingVideos}</p>
-                  </div>
-                  <div className="h-8 w-8 rounded-md bg-yellow-100 border border-yellow-900/20 shadow-inner flex items-center justify-center">
-                    <Clock className="h-4 w-4 text-yellow-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-muted-foreground">
-                      Total Duration
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {totalDuration.toFixed(1)}m
-                    </p>
-                  </div>
-                  <div className="h-8 w-8 rounded-md bg-purple-100 border border-purple-900/20 shadow-inner flex items-center justify-center">
-                    <Download className="h-4 w-4 text-purple-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <VideoStatsCards stats={stats} />
         </div>
         {videos && videos.length > 0 ? (
           <VideoList videos={videos} highlightedVideoId={params.video_id} />
         ) : (
-          <Card className="text-center py-12">
-            <CardContent>
-              <div className="text-6xl mb-4">🎬</div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-                No videos yet
-              </h3>
-              <p className="text-neutral-500 mb-6">
-                Create your first UGC video by selecting an avatar and
-                generating content
-              </p>
-              <Button asChild>
-                <Link href="/dashboard/creators">Create Your First Video</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <EmptyVideosState />
         )}
       </div>
     </div>
