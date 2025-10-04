@@ -87,7 +87,7 @@ export default async function ContentPage({ searchParams }: PageProps) {
                     </p>
                     <p className="text-2xl font-bold">{totalVideos}</p>
                   </div>
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="h-8 w-8 rounded-md bg-primary/10 border border-primary/20 shadow-inner flex items-center justify-center">
                     <Play className="h-4 w-4 text-primary" />
                   </div>
                 </div>
@@ -103,7 +103,7 @@ export default async function ContentPage({ searchParams }: PageProps) {
                     </p>
                     <p className="text-2xl font-bold">{completedVideos}</p>
                   </div>
-                  <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+                  <div className="h-8 w-8 rounded-md bg-green-100 border border-green-900/20 shadow-inner flex items-center justify-center">
                     <Eye className="h-4 w-4 text-green-600" />
                   </div>
                 </div>
@@ -119,7 +119,7 @@ export default async function ContentPage({ searchParams }: PageProps) {
                     </p>
                     <p className="text-2xl font-bold">{processingVideos}</p>
                   </div>
-                  <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center">
+                  <div className="h-8 w-8 rounded-md bg-yellow-100 border border-yellow-900/20 shadow-inner flex items-center justify-center">
                     <Clock className="h-4 w-4 text-yellow-600" />
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export default async function ContentPage({ searchParams }: PageProps) {
                       {totalDuration.toFixed(1)}m
                     </p>
                   </div>
-                  <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <div className="h-8 w-8 rounded-md bg-purple-100 border border-purple-900/20 shadow-inner flex items-center justify-center">
                     <Download className="h-4 w-4 text-purple-600" />
                   </div>
                 </div>
