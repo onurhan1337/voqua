@@ -70,7 +70,7 @@ export function SidebarNavigation({
                     asChild
                     isActive={pathname === item.url}
                     className={cn(
-                      "border border-dashed rounded-md",
+                      "border border-dashed rounded-none",
                       pathname === item.url
                         ? "border-neutral-500"
                         : "border-transparent"

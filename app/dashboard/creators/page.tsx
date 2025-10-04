@@ -55,20 +55,17 @@ export default async function CreatorsPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {avatars && avatars.length > 0 ? (
               avatars.map((avatar) => (
-                <Card
-                  key={avatar.id}
-                  className="hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
-                >
+                <Card key={avatar.id}>
                   <CardHeader className="pb-4">
                     <div className="relative">
-                      <div className="aspect-square w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden mb-4">
+                      <div className="w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden mb-4">
                         {avatar.thumbnail_url ? (
                           <Image
                             src={avatar.thumbnail_url}
                             alt={avatar.name}
-                            width={200}
+                            width={300}
                             height={200}
-                            className="w-full h-full object-cover"
+                            className="w-full h-auto object-contain"
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full">
@@ -89,18 +86,19 @@ export default async function CreatorsPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-gray-500">Voice:</span>
-                        <span className="ml-1 capitalize">{avatar.voice}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Style:</span>
-                        <span className="ml-1 capitalize">{avatar.style}</span>
-                      </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {avatar.voice}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {avatar.style}
+                      </Badge>
                     </div>
 
-                    <Button asChild className="w-full">
+                    <Button
+                      asChild
+                      className="w-full outline-dashed outline-neutral-600 bg-neutral-200 text-neutral-700 hover:bg-neutral-300 hover:text-neutral-800 outline-1 outline-offset-2"
+                    >
                       <Link
                         href={`/dashboard/content/create?avatar=${avatar.id}`}
                       >
