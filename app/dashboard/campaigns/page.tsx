@@ -1,12 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   AudioLines,
   Plus,
@@ -18,8 +11,25 @@ import {
 import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { StatsCard } from "@/components/campaigns/stats-card";
+import { CampaignCard } from "@/components/campaigns/campaign-card";
+import { QuickActionCard } from "@/components/campaigns/quick-action-card";
 
-const campaigns = [
+type CampaignStatus = "active" | "completed" | "draft";
+
+interface Campaign {
+  id: string;
+  name: string;
+  description: string;
+  status: CampaignStatus;
+  videos: number;
+  views: number;
+  engagement: number;
+  createdAt: string;
+  endDate: string;
+}
+
+const campaigns: Campaign[] = [
   {
     id: "1",
     name: "Q1 Product Launch",
@@ -55,7 +65,40 @@ const campaigns = [
   },
 ];
 
+function calculateStats(campaigns: Campaign[]) {
+  const totalVideos = campaigns.reduce(
+    (sum: number, campaign: Campaign) => sum + campaign.videos,
+    0
+  );
+  const totalViews = campaigns.reduce(
+    (sum: number, campaign: Campaign) => sum + campaign.views,
+    0
+  );
+  const averageEngagement =
+    campaigns.length > 0
+      ? campaigns.reduce(
+          (sum: number, campaign: Campaign) => sum + campaign.engagement,
+          0
+        ) / campaigns.length
+      : 0;
+
+  return {
+    totalCampaigns: campaigns.length,
+    totalVideos,
+    totalViews,
+    averageEngagement: Number(averageEngagement.toFixed(1)),
+  };
+}
+
+function formatViews(views: number): string {
+  if (views >= 1000) {
+    return `${(views / 1000).toFixed(1)}K`;
+  }
+  return views.toString();
+}
+
 export default function CampaignsPage() {
+  const stats = calculateStats(campaigns);
   return (
     <div className="flex flex-col h-screen">
       <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-white px-6">
@@ -88,132 +131,34 @@ export default function CampaignsPage() {
             </Button>
           </div>
 
-          {/* Campaign Stats */}
           <div className="grid gap-4 md:grid-cols-4">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-muted-foreground">
-                      Total Campaigns
-                    </p>
-                    <p className="text-2xl font-bold">3</p>
-                  </div>
-                  <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center shadow-inner border border-primary/20">
-                    <Target className="h-4 w-4 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-muted-foreground">
-                      Total Videos
-                    </p>
-                    <p className="text-2xl font-bold">20</p>
-                  </div>
-                  <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center shadow-inner border border-neutral-200">
-                    <AudioLines className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-muted-foreground">
-                      Total Views
-                    </p>
-                    <p className="text-2xl font-bold">37.7K</p>
-                  </div>
-                  <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center shadow-inner border border-neutral-200">
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-muted-foreground">
-                      Avg Engagement
-                    </p>
-                    <p className="text-2xl font-bold">10.4%</p>
-                  </div>
-                  <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center shadow-inner border border-neutral-200">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <StatsCard
+              title="Total Campaigns"
+              value={stats.totalCampaigns}
+              icon={Target}
+              isPrimary
+            />
+            <StatsCard
+              title="Total Videos"
+              value={stats.totalVideos}
+              icon={AudioLines}
+            />
+            <StatsCard
+              title="Total Views"
+              value={formatViews(stats.totalViews)}
+              icon={TrendingUp}
+            />
+            <StatsCard
+              title="Avg Engagement"
+              value={`${stats.averageEngagement}%`}
+              icon={Users}
+            />
           </div>
 
-          {/* Campaigns List */}
           {campaigns.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {campaigns.map((campaign) => (
-                <Card
-                  key={campaign.id}
-                  className="hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
-                >
-                  <CardHeader className="pb-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">
-                          {campaign.name}
-                        </CardTitle>
-                        <CardDescription className="mt-1">
-                          {campaign.description}
-                        </CardDescription>
-                      </div>
-                      <Badge
-                        variant={
-                          campaign.status === "active"
-                            ? "default"
-                            : campaign.status === "completed"
-                            ? "secondary"
-                            : "outline"
-                        }
-                      >
-                        {campaign.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {campaign.videos} videos
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {campaign.views.toLocaleString()} views
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {campaign.engagement}% engagement
-                      </Badge>
-                    </div>
-
-                    <div className="text-sm text-muted-foreground">
-                      <p>Ends: {campaign.endDate}</p>
-                    </div>
-
-                    <Button
-                      size="sm"
-                      className="w-full outline-dashed outline-neutral-600 bg-neutral-200 text-neutral-700 hover:bg-neutral-300 hover:text-neutral-800 outline-1 outline-offset-2"
-                      asChild
-                    >
-                      <Link href={`/dashboard/campaigns/${campaign.id}`}>
-                        View Campaign Details
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <CampaignCard key={campaign.id} campaign={campaign} />
               ))}
             </div>
           ) : (
@@ -235,62 +180,35 @@ export default function CampaignsPage() {
             </Card>
           )}
 
-          {/* Quick Actions */}
           <div>
             <h3 className="text-lg font-semibold text-neutral-900 mb-4">
               Quick Actions
             </h3>
             <div className="grid gap-4 md:grid-cols-3">
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <AudioLines className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <h4 className="font-medium">Create Video</h4>
-                  </div>
-                  <p className="text-sm text-neutral-600 mb-4">
-                    Generate a new UGC video with AI avatars
-                  </p>
-                  <Button size="sm" asChild>
-                    <Link href="/dashboard/creators">Start Creating</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-                      <Target className="h-4 w-4 text-green-600" />
-                    </div>
-                    <h4 className="font-medium">New Campaign</h4>
-                  </div>
-                  <p className="text-sm text-neutral-600 mb-4">
-                    Set up a new campaign for your videos
-                  </p>
-                  <Button size="sm" variant="outline">
-                    Create Campaign
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
-                      <TrendingUp className="h-4 w-4 text-purple-600" />
-                    </div>
-                    <h4 className="font-medium">Analytics</h4>
-                  </div>
-                  <p className="text-sm text-neutral-600 mb-4">
-                    View detailed performance metrics
-                  </p>
-                  <Button size="sm" variant="outline">
-                    View Analytics
-                  </Button>
-                </CardContent>
-              </Card>
+              <QuickActionCard
+                title="Create Video"
+                description="Generate a new UGC video with AI avatars"
+                icon={AudioLines}
+                iconColor="text-blue-600"
+                iconBgColor="bg-blue-100"
+                href="/dashboard/creators"
+              />
+              <QuickActionCard
+                title="New Campaign"
+                description="Set up a new campaign for your videos"
+                icon={Target}
+                iconColor="text-green-600"
+                iconBgColor="bg-green-100"
+                variant="outline"
+              />
+              <QuickActionCard
+                title="Analytics"
+                description="View detailed performance metrics"
+                icon={TrendingUp}
+                iconColor="text-purple-600"
+                iconBgColor="bg-purple-100"
+                variant="outline"
+              />
             </div>
           </div>
         </div>
